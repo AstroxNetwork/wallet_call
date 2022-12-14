@@ -1,0 +1,7 @@
+type TestArgs = record {
+  map : vec record { nat32; bool };
+  pid : principal;
+  str : text;
+  bytes : vec nat8;
+};
+service : { test_call : (TestArgs) -> (opt text) }

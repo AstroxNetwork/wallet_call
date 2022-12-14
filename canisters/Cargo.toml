@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "dapp/test_canister/actor",
+    "dapp/test_canister/mod",
+    "dapp/wallet_canister/actor",
+    "dapp/wallet_canister/mod",
+]
+
+[profile.release]
+lto = true
+opt-level = 'z'

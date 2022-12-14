@@ -1,0 +1,1 @@
+{"canisters":{"test_canister":{"type":"custom","candid":"test_canister.did","wasm":"test_canister_opt.wasm","build":[]}},"defaults":{"build":{"packtool":""},"bitcoin":{"enabled":true,"nodes":["127.0.0.1:18444"]}},"networks":{"local":{"bind":"127.0.0.1:8000","type":"ephemeral"},"mainnet":{"providers":["https://identity.ic0.app"],"type":"persistent"}},"version":1}

@@ -1,0 +1,11 @@
+{
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }, 
+    "replica": {
+      "subnet_type": "system"
+    }
+  },
+  "version": 1
+}

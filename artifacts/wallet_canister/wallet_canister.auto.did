@@ -1,0 +1,28 @@
+type CallCanisterArgs = record {
+  args : vec nat8;
+  cycles : nat;
+  method_name : text;
+  canister : principal;
+};
+type CallResult = record { return : vec nat8 };
+type ExpiryUser = record { user : principal; timestamp : nat64 };
+type Result = variant { Ok : nat; Err : text };
+type Result_1 = variant { Ok; Err : text };
+type Result_2 = variant { Ok : CallResult; Err : text };
+service : () -> {
+  add_expiry_user : (principal) -> (opt ExpiryUser);
+  balance_get : () -> (Result) query;
+  ego_canister_add : (text, principal) -> (Result_1);
+  ego_controller_add : (principal) -> (Result_1);
+  ego_controller_remove : (principal) -> (Result_1);
+  ego_controller_set : (vec principal) -> (Result_1);
+  ego_op_add : (principal) -> (Result_1);
+  ego_owner_add : (principal) -> (Result_1);
+  ego_owner_remove : (principal) -> (Result_1);
+  ego_owner_set : (vec principal) -> (Result_1);
+  ego_user_add : (principal) -> (Result_1);
+  ego_user_remove : (principal) -> (Result_1);
+  ego_user_set : (vec principal) -> (Result_1);
+  proxy_call : (CallCanisterArgs) -> (Result_2);
+  set_expiry_period : (nat64) -> ();
+}
