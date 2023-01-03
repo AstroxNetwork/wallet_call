@@ -52,10 +52,20 @@ const targetCanisterId = getCanisterId('test_canister')!;
 // Suppose it is post login principal
 let newTempId = Ed25519KeyIdentity.generate();
 
+// add this user to wallet
+await walletActor.add_expiry_user(newTempId.getPrincipal());
+
+// create an actor normally
+const tempActor = await getActor<walletService>(
+  newTempId,
+  walletIDL,
+  walletCanisterId,
+);
+
 // create proxy actor for target canister,
 // passing target IDL types, to make linter happy
 let proxyActor = createProxyActor<targetService>(
-  _walletActor,
+  tempActor,
   targetCanisterId!,
   targetIDL,
 );
