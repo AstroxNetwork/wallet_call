@@ -88,7 +88,7 @@ function _createActorMethod(
   method_name: string,
   func: IDL.FuncClass,
 ): ActorMethod {
-  const caller = async (_, ...args: any[]) => {
+  const caller = async (_: CallConfig, ...args: any[]) => {
     const arg = IDL.encode(func.argTypes, args);
     const response = await wallet_call.proxy_call({
       args: Array.from(new Uint8Array(arg)),

@@ -1,8 +1,81 @@
-# MultiSig
+# Wallet_Call
 
-- Developers: Upload and maintain canister wasm, and frontend applications. Pay to install or free to use.
-- Admin/Auditors/Committee: set roles, audit wasm code, progress network updates and governance.
-- Users: Install and use his/her owned DApps through his/her wallet.
+## What is it?
+
+We use `user-owned wallet` canister to call third_party canister function, instead of using user's principal ID.
+The caller will be canister ID.
+
+## How it works?
+
+[see here](clients/tests/walletCall.test.ts)
+
+Three canister functions are used:
+
+1. `proxy_call`: function entry to call other canister function.
+2. `add_expiry_user`: owner define who can call this `proxy_call`, with a expiry date.
+3. `set_expiry_period`: set default expiry period for each wallet canister.
+
+A few typescripts are used:
+
+1. `createProxyActor`, to create proxy actor for wallet functions.
+2. `createActorMethod`, to create actor method with IDL types.
+
+## Quick Start
+
+1. Target canister candid
+
+```candid
+type TestArgs = record {
+  map : vec record { nat32; bool };
+  pid : principal;
+  str : text;
+  bytes : vec nat8;
+};
+service : { test_call : (TestArgs) -> (opt text) }
+
+```
+
+2. We use typescript to ineract with it.
+
+```typescript
+// get wallet canister id and wallet canister actor
+const walletCanisterId = getCanisterId('wallet_canister')!;
+const walletActor = await getActor<walletService>(
+  identity, // owner of wallet canister
+  walletIDL, // wallet canister IDL
+  walletCanisterId,
+);
+
+// get target canister ID
+const targetCanisterId = getCanisterId('test_canister')!;
+
+// Suppose it is post login principal
+let newTempId = Ed25519KeyIdentity.generate();
+
+// create proxy actor for target canister,
+// passing target IDL types, to make linter happy
+let proxyActor = createProxyActor<targetService>(
+  _walletActor,
+  targetCanisterId!,
+  targetIDL,
+);
+
+// now use it as normal call , and get the result
+// be aware it is always update call by default.
+const result = await proxyActor.test_call({
+  map: Array.from([
+    [0, true],
+    [1, false],
+  ]),
+  pid: Principal.fromText(walletCanisterId),
+  str: 'damn',
+  bytes: Array.from([0, 1, 2, 3, 4]),
+});
+
+console.log(result);
+```
+
+---
 
 ## Prequeries
 
@@ -37,49 +110,49 @@ dfx start --clean
 
 3. Scripts
 
-    1. install IC Canisters, ledger/II/NNS
+   1. install IC Canisters, ledger/II/NNS
 
    ```bash
    pnpm run pre
    ```
 
-    2. bootstrap and create canister ids
+   2. bootstrap and create canister ids
 
    ```bash
    pnpm run bootstrap
    ```
 
-    3. build projects
+   3. build projects
 
    ```bash
     pnpm run build # build all projects
    ```
 
-    4. install projects
+   4. install projects
 
    ```bash
     pnpm run install # install install the provider projects
    ```
 
-    5. reinstall projects
+   5. reinstall projects
 
    ```bash
     pnpm run reinstall # reinstall all projects
    ```
 
-    6. upgrade projects
+   6. upgrade projects
 
    ```bash
     pnpm run upgrade # upgrade all projects
    ```
 
-    6. post install
+   6. post install
 
    ```bash
    pnpm run post_install
    ```
 
-    7. run tests
+   7. run tests
 
    ```bash
    pnpm run test
