@@ -1,6 +1,7 @@
 export const idlFactory = ({ IDL }) => {
   const ExpiryUser = IDL.Record({
     'user' : IDL.Principal,
+    'expiry_timestamp' : IDL.Nat64,
     'timestamp' : IDL.Nat64,
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : IDL.Text });
@@ -14,7 +15,7 @@ export const idlFactory = ({ IDL }) => {
   const CallResult = IDL.Record({ 'return' : IDL.Vec(IDL.Nat8) });
   const Result_2 = IDL.Variant({ 'Ok' : CallResult, 'Err' : IDL.Text });
   return IDL.Service({
-    'add_expiry_user' : IDL.Func([IDL.Principal], [IDL.Opt(ExpiryUser)], []),
+    'add_expiry_user' : IDL.Func([IDL.Principal], [ExpiryUser], []),
     'balance_get' : IDL.Func([], [Result], ['query']),
     'ego_canister_add' : IDL.Func([IDL.Text, IDL.Principal], [Result_1], []),
     'ego_controller_add' : IDL.Func([IDL.Principal], [Result_1], []),

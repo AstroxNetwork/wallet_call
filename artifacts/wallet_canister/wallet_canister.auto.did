@@ -5,12 +5,16 @@ type CallCanisterArgs = record {
   canister : principal;
 };
 type CallResult = record { return : vec nat8 };
-type ExpiryUser = record { user : principal; timestamp : nat64 };
+type ExpiryUser = record {
+  user : principal;
+  expiry_timestamp : nat64;
+  timestamp : nat64;
+};
 type Result = variant { Ok : nat; Err : text };
 type Result_1 = variant { Ok; Err : text };
 type Result_2 = variant { Ok : CallResult; Err : text };
 service : () -> {
-  add_expiry_user : (principal) -> (opt ExpiryUser);
+  add_expiry_user : (principal) -> (ExpiryUser);
   balance_get : () -> (Result) query;
   ego_canister_add : (text, principal) -> (Result_1);
   ego_controller_add : (principal) -> (Result_1);

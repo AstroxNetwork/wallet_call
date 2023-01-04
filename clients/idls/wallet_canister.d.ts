@@ -8,7 +8,11 @@ export interface CallCanisterArgs {
   'canister' : Principal,
 }
 export interface CallResult { 'return' : Array<number> }
-export interface ExpiryUser { 'user' : Principal, 'timestamp' : bigint }
+export interface ExpiryUser {
+  'user' : Principal,
+  'expiry_timestamp' : bigint,
+  'timestamp' : bigint,
+}
 export type Result = { 'Ok' : bigint } |
   { 'Err' : string };
 export type Result_1 = { 'Ok' : null } |
@@ -16,7 +20,7 @@ export type Result_1 = { 'Ok' : null } |
 export type Result_2 = { 'Ok' : CallResult } |
   { 'Err' : string };
 export interface _SERVICE {
-  'add_expiry_user' : ActorMethod<[Principal], [] | [ExpiryUser]>,
+  'add_expiry_user' : ActorMethod<[Principal], ExpiryUser>,
   'balance_get' : ActorMethod<[], Result>,
   'ego_canister_add' : ActorMethod<[string, Principal], Result_1>,
   'ego_controller_add' : ActorMethod<[Principal], Result_1>,
