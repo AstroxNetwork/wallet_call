@@ -50,7 +50,7 @@ async fn proxy_call(args: CallCanisterArgs<u128>) -> Result<CallResult, String> 
 
 #[update(name = "add_expiry_user", guard = "owner_guard")]
 #[candid_method(update, rename = "add_expiry_user")]
-async fn add_expiry_user(user: Principal) -> Option<ExpiryUser> {
+async fn add_expiry_user(user: Principal) -> ExpiryUser {
     WalletService::add_expiry_user(user)
 }
 

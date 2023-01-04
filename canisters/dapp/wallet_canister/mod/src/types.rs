@@ -22,6 +22,7 @@ pub struct CallResult {
 pub struct ExpiryUser {
     pub user: Principal,
     pub timestamp: u64,
+    pub expiry_timestamp: u64,
 }
 
 #[derive(CandidType, Serialize, Deserialize, Clone)]

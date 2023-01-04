@@ -1,4 +1,5 @@
 use crate::types::{ExpiryUser, Settings, WalletStore};
+use ic_cdk::api;
 use ic_cdk::export::Principal;
 use itertools::Itertools;
 use std::cell::RefCell;
@@ -30,17 +31,18 @@ impl Default for WalletStore {
 pub struct WalletService;
 
 impl WalletService {
-    pub fn add_expiry_user(user: Principal) -> Option<ExpiryUser> {
+    pub fn add_expiry_user(user: Principal) -> ExpiryUser {
         WalletService::remove_all_expiries();
+        let ts = api::time();
+        let rt = ExpiryUser {
+            user: user.clone(),
+            timestamp: ts.clone(),
+            expiry_timestamp: WalletService::get_setting().expiry_period + ts,
+        };
         WALLET_STORE.with(|s| {
             let mut store = s.borrow_mut();
-            store.expiry_users.insert(
-                user.clone(),
-                ExpiryUser {
-                    user: user.clone(),
-                    timestamp: ic_cdk::api::time(),
-                },
-            )
+            store.expiry_users.insert(user.clone(), rt.clone());
+            rt.clone()
         })
     }
 
@@ -58,7 +60,7 @@ impl WalletService {
         match WalletService::get_expiry_user(user) {
             None => false,
             Some(r) => {
-                if r.timestamp + WalletService::get_setting().expiry_period < ic_cdk::api::time() {
+                if r.timestamp + WalletService::get_setting().expiry_period < api::time() {
                     WalletService::remove_expiry_user(user);
                     false
                 } else {
