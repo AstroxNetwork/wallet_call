@@ -89,7 +89,14 @@ function _createActorMethod(
   func: IDL.FuncClass,
 ): ActorMethod {
   const caller = async (_: CallConfig, ...args: any[]) => {
-    const arg = IDL.encode(func.argTypes, args);
+    const updateAnnotations = [];
+    const newFunc = new IDL.FuncClass(
+      func.argTypes,
+      func.retTypes,
+      updateAnnotations,
+    );
+
+    const arg = IDL.encode(newFunc.argTypes, args);
     const response = await wallet_call.proxy_call({
       args: Array.from(new Uint8Array(arg)),
       cycles: BigInt(0),
@@ -98,7 +105,7 @@ function _createActorMethod(
     });
     if (hasOwnProperty(response, 'Ok')) {
       const responseBytes = response.Ok.return;
-      return decodeReturnValue(func.retTypes, new Uint8Array(responseBytes));
+      return decodeReturnValue(newFunc.retTypes, new Uint8Array(responseBytes));
     } else {
       throw new Error(response.Err);
     }
@@ -191,7 +198,24 @@ describe('walletCall', () => {
           [1, false],
         ]),
         pid: Principal.fromText(walletCanisterId),
-        str: 'damn',
+        str: 'update',
+        bytes: Array.from([0, 1, 2, 3, 4]),
+      });
+      console.log(result);
+      expect(result).toBeTruthy();
+    } catch (error) {
+      console.log('throw');
+      expect(error as Error).toBeTruthy();
+    }
+
+    try {
+      let result = await proxyActor.test_query({
+        map: Array.from([
+          [0, true],
+          [1, false],
+        ]),
+        pid: Principal.fromText(walletCanisterId),
+        str: 'query',
         bytes: Array.from([0, 1, 2, 3, 4]),
       });
       console.log(result);

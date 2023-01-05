@@ -28,3 +28,17 @@ async fn test_call(args: TestArgs) -> Option<String> {
     res.insert("some".to_string(), "value".to_string());
     res.get("some").map_or_else(|| None, |s| Some(s.clone()))
 }
+
+#[query(name = "test_query")]
+#[candid_method(query, rename = "test_query")]
+async fn test_query(args: TestArgs) -> Option<String> {
+    ic_cdk::println!(
+        "test_call from caller: {}, pid:{}, str: {}, bytes: {}, map:{}",
+        caller().to_text(),
+        args.pid.to_text(),
+        args.str,
+        hex::encode(args.bytes.as_slice()),
+        serde_json::to_string(&args.map).unwrap()
+    );
+    Some("query".to_string())
+}

@@ -4,4 +4,7 @@ type TestArgs = record {
   str : text;
   bytes : vec nat8;
 };
-service : { test_call : (TestArgs) -> (opt text) }
+service : {
+  test_call : (TestArgs) -> (opt text);
+  test_query : (TestArgs) -> (opt text) query;
+}

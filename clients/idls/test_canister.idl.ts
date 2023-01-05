@@ -7,6 +7,7 @@ export const idlFactory = ({ IDL }) => {
   });
   return IDL.Service({
     'test_call' : IDL.Func([TestArgs], [IDL.Opt(IDL.Text)], []),
+    'test_query' : IDL.Func([TestArgs], [IDL.Opt(IDL.Text)], ['query']),
   });
 };
 export const init = ({ IDL }) => { return []; };
