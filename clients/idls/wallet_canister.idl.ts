@@ -15,7 +15,11 @@ export const idlFactory = ({ IDL }) => {
   const CallResult = IDL.Record({ 'return' : IDL.Vec(IDL.Nat8) });
   const Result_2 = IDL.Variant({ 'Ok' : CallResult, 'Err' : IDL.Text });
   return IDL.Service({
-    'add_expiry_user' : IDL.Func([IDL.Principal], [ExpiryUser], []),
+    'add_expiry_user' : IDL.Func(
+        [IDL.Principal, IDL.Opt(IDL.Nat64)],
+        [ExpiryUser],
+        [],
+      ),
     'balance_get' : IDL.Func([], [Result], ['query']),
     'ego_canister_add' : IDL.Func([IDL.Text, IDL.Principal], [Result_1], []),
     'ego_controller_add' : IDL.Func([IDL.Principal], [Result_1], []),

@@ -178,7 +178,7 @@ describe('walletCall', () => {
     }
   });
   test('authoized call', async () => {
-    (await walletActor).add_expiry_user(newTempId.getPrincipal());
+    (await walletActor).add_expiry_user(newTempId.getPrincipal(), []);
     const tempActor = getActor<walletService>(
       newTempId,
       walletIDL,

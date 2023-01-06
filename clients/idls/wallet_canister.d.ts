@@ -20,7 +20,7 @@ export type Result_1 = { 'Ok' : null } |
 export type Result_2 = { 'Ok' : CallResult } |
   { 'Err' : string };
 export interface _SERVICE {
-  'add_expiry_user' : ActorMethod<[Principal], ExpiryUser>,
+  'add_expiry_user' : ActorMethod<[Principal, [] | [bigint]], ExpiryUser>,
   'balance_get' : ActorMethod<[], Result>,
   'ego_canister_add' : ActorMethod<[string, Principal], Result_1>,
   'ego_controller_add' : ActorMethod<[Principal], Result_1>,

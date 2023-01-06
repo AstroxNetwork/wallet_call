@@ -31,13 +31,15 @@ impl Default for WalletStore {
 pub struct WalletService;
 
 impl WalletService {
-    pub fn add_expiry_user(user: Principal) -> ExpiryUser {
+    pub fn add_expiry_user(user: Principal, period: Option<u64>) -> ExpiryUser {
         WalletService::remove_all_expiries();
+        let actual_period =
+            period.map_or_else(|| WalletService::get_setting().expiry_period, |v| v);
         let ts = api::time();
         let rt = ExpiryUser {
             user: user.clone(),
             timestamp: ts.clone(),
-            expiry_timestamp: WalletService::get_setting().expiry_period + ts,
+            expiry_timestamp: actual_period + ts,
         };
         WALLET_STORE.with(|s| {
             let mut store = s.borrow_mut();
