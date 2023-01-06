@@ -53,7 +53,10 @@ const targetCanisterId = getCanisterId('test_canister')!;
 let newTempId = Ed25519KeyIdentity.generate();
 
 // add this user to wallet
-await walletActor.add_expiry_user(newTempId.getPrincipal());
+await walletActor.add_expiry_user(
+  newTempId.getPrincipal(),
+  [], // expiration period is option for each user, if not set, use global setting
+);
 
 // create an actor normally
 const tempActor = await getActor<walletService>(
