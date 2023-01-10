@@ -5,9 +5,16 @@
 We use `user-owned wallet` canister to call third_party canister function, instead of using user's principal ID.
 The caller will be canister ID.
 
+## Quick Start
+
+1. ENV setup, see [ENV Setup](#env-setup)
+2. `pnpm install`
+3. `pnpm run ego:run` to create and deploy
+4. `pnpm run test walletCall` to run test file in `clients/tests`
+
 ## How it works?
 
-[see here](clients/tests/walletCall.test.ts)
+👉 [See Code Here](clients/tests/walletCall.test.ts)
 
 Three canister functions are used:
 
@@ -16,6 +23,8 @@ Three canister functions are used:
 3. `set_expiry_period`: set default expiry period for each wallet canister.
 
 A few typescripts are used:
+
+👉 [See Code Here](clients/tests/proxyActor.ts)
 
 1. `createProxyActor`, to create proxy actor for wallet functions.
 2. `createActorMethod`, to create actor method with IDL types.
@@ -97,9 +106,3 @@ console.log(result);
   - You can change file names on `ego-config`.json
 
 - setup project, see `ego-projects.json`,
-
-## Quick Start
-
-1. `pnpm install`
-2. `pnpm run ego:run` to create and deploy
-3. `pnpm run test ego_example` to run test file in `clients/tests`

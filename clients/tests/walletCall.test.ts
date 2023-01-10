@@ -64,11 +64,15 @@ describe('walletCall', () => {
     }
   });
   test('authoized call', async () => {
-    const addedResult = (await walletActor).add_expiry_user(newTempId.getPrincipal(), []);
+    const addedResult = await (await walletActor).add_expiry_user(newTempId.getPrincipal(), []);
     console.log(`
     3. Adding authorized Id to wallet canister, with default expiration period
     with Result: \n
-    ${addedResult}
+    \{
+        user:  ${addedResult.user.toText()}
+        timestamp:  ${addedResult.timestamp.toString()}
+        expiry_timestamp:  ${addedResult.expiry_timestamp.toString()}
+    \}
     `);
 
     const tempActor = getActor<walletService>(newTempId, walletIDL, walletCanisterId);
