@@ -1,0 +1,24 @@
+[package]
+name = "test_canister_mod"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/mod.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+candid = "0.8.4"
+hex = "0.4.3"
+ic-cdk = "0.6.8"
+ic-cdk-macros = "0.6.8"
+lazy_static = "1.4.0"
+serde = "1.0.132"
+serde_bytes = "0.11"
+serde_json = "1.0"
+ego_lib = "0.3.4"
+ego_macros = "0.1.5"
+ego_types = "0.1.2"
+itertools="0.10.5"
+

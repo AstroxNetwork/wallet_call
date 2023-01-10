@@ -1,0 +1,13 @@
+{
+    "dfxVersion": "0.12.1",
+    "dfxPort": 8080,
+    "canisters": "canisters",
+    "artifacts": "artifacts",
+    "configs": "configs",
+    "credentials": {
+        "seedPhrase": "./credentials/seedPhrase.txt",
+        "production_pem": "./credentials/production.pem",
+        "production_cycles_wallet": "./credentials/production_cycles_wallet.txt"
+    },
+    "cycles_install_code": "200000000000"
+}

@@ -1,0 +1,18 @@
+[
+    {
+        "category": "dapp",
+        "package": "test_canister",
+        "bin_name": "test-canister",
+        "config": "./configs/test_canister.json",
+        "post_install_sequence": 100,
+        "no_deploy": false
+    },
+    {
+        "category": "dapp",
+        "package": "wallet_canister",
+        "bin_name": "wallet-canister",
+        "config": "./configs/wallet_canister.json",
+        "post_install_sequence": 100,
+        "no_deploy": false
+    }
+]
