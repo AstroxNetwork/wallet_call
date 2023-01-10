@@ -7,8 +7,6 @@ use std::cell::RefCell;
 thread_local! {
     pub static WALLET_STORE: RefCell<WalletStore> = RefCell::new(WalletStore::default());
 }
-pub const DEFAULT_PATH: &str = "m/44'/0'/0'/0/0";
-
 pub fn pre_upgrade() -> WalletStore {
     WALLET_STORE.with(|s| s.take().into())
 }
