@@ -99,10 +99,10 @@ console.log(result);
 
 - **!! Important !! Setup Credentials**
 
-  - Under `credentials` folder, you need to add 3 files.
+  - Under `credentials` folder, you need to add 2 files.
     1.  `seedPhrase.txt`: 12 words mnemonic phrases, to create secp256k1 account for local test
     2.  `production.pem`: pem file with secp256k1 curve encoded, use for `mainnet` deployment
-    3.  `production_cycles_wallet.txt`: cycles wallet of mainnet, use for `mainnet` deployment
-  - You can change file names on `ego-config`.json
+    3.  You can change file names on `ego-config`.json
+  - Modify `ego-config`.json, change `production_cycles_wallet` to your cycles wallet.
 
 - setup project, see `ego-projects.json`,
