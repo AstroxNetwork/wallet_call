@@ -7,7 +7,7 @@
     "credentials": {
         "seedPhrase": "./credentials/seedPhrase.txt",
         "production_pem": "./credentials/production.pem",
-        "production_cycles_wallet": "./credentials/production_cycles_wallet.txt"
+        "production_cycles_wallet": "rrkah-fqaaa-aaaaa-aaaaq-cai"
     },
     "cycles_install_code": "200000000000"
 }
