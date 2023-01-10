@@ -44,7 +44,6 @@ pub fn init() {
     ic_cdk::println!("wallet canister: init, caller is {}", caller.clone());
     ic_cdk::println!("==> add caller as the owner");
     owner_add(caller.clone());
-    // TODO: Set btc_init
 }
 
 #[update(name = "proxy_call", guard = "owner_or_valid_user_guard")]
