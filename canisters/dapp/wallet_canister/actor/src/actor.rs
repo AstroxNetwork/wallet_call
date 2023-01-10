@@ -1,16 +1,14 @@
 use candid::{candid_method, };
 
 use ic_cdk_macros::*;
-use std::borrow::Borrow;
-use std::ops::Index;
-use ego_macros::{inject_app_info_api, inject_ego_api,inject_app_info,inject_ego_data};
+use ego_macros::{ inject_ego_api,inject_app_info,inject_ego_data};
 use std::cell::RefCell;
 
 
 use wallet_canister_mod::types::{CallCanisterArgs, CallResult,  ExpiryUser};
 
 
-use ic_cdk::{storage, trap};
+use ic_cdk::{trap};
 use wallet_canister_mod::service::WalletService;
 
 inject_ego_api!();

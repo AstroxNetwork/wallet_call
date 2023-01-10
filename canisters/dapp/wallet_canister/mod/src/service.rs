@@ -48,7 +48,7 @@ impl WalletService {
 
     pub fn get_expiry_user(user: &Principal) -> Option<ExpiryUser> {
         WALLET_STORE.with(|s| {
-            let mut store = s.borrow();
+            let store = s.borrow();
             store
                 .expiry_users
                 .get(&user.clone())
