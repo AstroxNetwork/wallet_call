@@ -12,7 +12,7 @@ import { createProxyActor } from './proxyActor';
 
 describe('walletCall', () => {
   const walletCanisterId = getCanisterId('wallet_canister')!;
-  const walletActor = getActor<walletService>(identity, walletIDL, walletCanisterId);
+  const walletActor = getActor<walletService>(identity(), walletIDL, walletCanisterId);
   const targetCanisterId = getCanisterId('test_canister')!;
   let proxyActor: ActorSubclass<targetService> | undefined;
   let newTempId = Ed25519KeyIdentity.generate();
