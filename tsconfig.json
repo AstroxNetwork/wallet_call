@@ -6,8 +6,8 @@
     "forceConsistentCasingInFileNames": true,
     "lib": ["ES2019", "DOM"],
     "strict": true,
-    "module": "commonjs", //ii
-    "target": "es2018", //ii
+    "module": "es2022", //ii
+    "target": "es2022", //ii
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "noFallthroughCasesInSwitch": true,
@@ -31,9 +31,9 @@
     "downlevelIteration": true
   },
   "include": [
-    "clients/**/*", 
-    "clients/context/**/*", 
-    "scripts/**/*",
+    "_old/clients/**/*",
+    "_old/clients/context/**/*",
+    "_old/scripts/**/*"
   ],
   "exclude": [
     "node_modules",
@@ -51,7 +51,7 @@
     "**/canisters",
     "webpack.config.js",
     "*.js",
-    "scripts/**/*",
+    "_old/scripts/**/*",
     "agents/*"
   ]
 }

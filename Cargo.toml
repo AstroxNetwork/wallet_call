@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "./canisters/test_canister/actor",
+    "./canisters/test_canister/mod",
+    "./canisters/wallet_canister/actor",
+    "./canisters/wallet_canister/mod",
+]
+
+[profile.release]
+lto = true
+opt-level = 'z'

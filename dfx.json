@@ -1,11 +1,1 @@
-{
-  "defaults": {
-    "build": {
-      "packtool": ""
-    }, 
-    "replica": {
-      "subnet_type": "system"
-    }
-  },
-  "version": 1
-}
+{"defaults":{"build":{"packtool":""},"replica":{"subnet_type":"system"}},"networks":{"local":{"bind":"127.0.0.1:8000","type":"ephemeral"},"staging":{"providers":["https://ic0.app"],"type":"persistent"},"ic":{"providers":["https://ic0.app"],"type":"persistent"}},"version":1,"tasks":{},"canisters":{"ledger":{"type":"custom","candid":"/Users/user/projects/wallet_call_scripts/node_modules/@dfx-js/canisters/dist/ledger/ledger.private.did","wasm":"/Users/user/projects/wallet_call_scripts/node_modules/@dfx-js/canisters/dist/ledger/ledger.wasm","build":"","remote":{"id":{"ic":"ryjl3-tyaaa-aaaaa-aaaba-cai"}},"_metadata":{"standard":"ICP"}},"internet_identity":{"type":"custom","candid":"/Users/user/projects/wallet_call_scripts/node_modules/@dfx-js/canisters/dist/internet-identity/internet_identity.did","wasm":"/Users/user/projects/wallet_call_scripts/node_modules/@dfx-js/canisters/dist/internet-identity/internet_identity.wasm","build":"","remote":{"id":{"ic":"rdmx6-jaaaa-aaaaa-aaadq-cai"}}},"nns":{"type":"custom","candid":"/Users/user/projects/wallet_call_scripts/node_modules/@dfx-js/canisters/dist/nns/nns-ui/nns.did","wasm":"/Users/user/projects/wallet_call_scripts/node_modules/@dfx-js/canisters/dist/nns/nns-ui/nns.wasm","build":"","remote":{"id":{"ic":"qoctq-giaaa-aaaaa-aaaea-cai"}}},"test_canister":{"type":"rust","package":"test_canister","candid":"canisters/test_canister/test_canister.did","wasm":"target/wasm32-unknown-unknown/release/test_canister.wasm","build":"cargo build --target wasm32-unknown-unknown --release"},"wallet_canister":{"type":"rust","package":"wallet_canister","candid":"canisters/wallet_canister/wallet_canister.did","wasm":"target/wasm32-unknown-unknown/release/wallet_canister.wasm","build":"cargo build --target wasm32-unknown-unknown --release"}},"scripts":{}}

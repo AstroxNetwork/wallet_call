@@ -7,7 +7,7 @@ The caller will be canister ID.
 
 ## How it works?
 
-[see here](clients/tests/walletCall.test.ts)
+[see here](test/walletCall.test.ts)
 
 Three canister functions are used:
 
@@ -35,7 +35,7 @@ service : { test_call : (TestArgs) -> (opt text) }
 
 ```
 
-2. We use typescript to ineract with it.
+2. We use typescript to interact with it.
 
 ```typescript
 // get wallet canister id and wallet canister actor
@@ -90,7 +90,7 @@ console.log(result);
 
 ---
 
-## Prequeries
+## Requirements
 
 - rust
 - nodejs
@@ -100,81 +100,30 @@ console.log(result);
 sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"
 ```
 
-## bootstrap
+## Quick Start
 
 0. root folder but a new terminal run dfx, don't close
 
-```
-dfx start --clean
+```bash
+dfx start --clean --background
 ```
 
 1. install dependencies
 
 ```bash
-    npm install pnpm -g && pnpm install
+    npm install
 ```
 
-2. put seedphrase(12 words) with a name `internal.text`, put it under `credentials` folder
+2. Scripts
 
-```tree
-    credentials/
-        internal.txt
-```
-
-3. Scripts
-
-   1. install IC Canisters, ledger/II/NNS
+   1. build canisters
 
    ```bash
-   pnpm run pre
+   npm run canisters
    ```
 
-   2. bootstrap and create canister ids
+   2. run tests
 
    ```bash
-   pnpm run bootstrap
-   ```
-
-   3. build projects
-
-   ```bash
-    pnpm run build # build all projects
-   ```
-
-   4. install projects
-
-   ```bash
-    pnpm run install # install install the provider projects
-   ```
-
-   5. reinstall projects
-
-   ```bash
-    pnpm run reinstall # reinstall all projects
-   ```
-
-   6. upgrade projects
-
-   ```bash
-    pnpm run upgrade # upgrade all projects
-   ```
-
-   6. post install
-
-   ```bash
-   pnpm run post_install
-   ```
-
-   7. run tests
-
-   ```bash
-   pnpm run test
-   ```
-
-4. Once and for all
-
-   ```bash
-
-   pnpm run deploy:local # build and deploy the ms_provider project
-   pnpm run setup:local # register ms_provider as a wallet provider to ego, and release the ms_controller and btc_wallet wasm
+   npm run test
    ```

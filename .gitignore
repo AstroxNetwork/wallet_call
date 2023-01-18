@@ -37,7 +37,7 @@ snapshots/
 # frontend code
 **/node_modules/
 **/dist/
-clients/**/lib
+_old/clients/**/lib
 
 
 # Cargo build output
@@ -49,8 +49,8 @@ snapshots/
 
 credentials/*.txt
 credentials/*.pem
-clients/idls/**/ego*.ts
-clients/idls/**/ego*.js
+_old/clients/idls/**/ego*.ts
+_old/clients/idls/**/ego*.js
 
 # canisters/
 ego/**/*.wasm
@@ -61,7 +61,7 @@ ego/.pnpm-debug.log
 
 # configs
 # configs/ego*.json
-!configs/constant.json
+!_old/configs/constant.json
 
 
 # artifacts
