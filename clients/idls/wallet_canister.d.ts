@@ -12,6 +12,15 @@ export interface ExpiryUser {
   'user' : Principal,
   'expiry_timestamp' : bigint,
   'timestamp' : bigint,
+  'target_list' : Array<ProxyActorItem>,
+}
+export interface ProxyActorItem {
+  'methods' : Array<string>,
+  'canister' : Principal,
+}
+export interface ProxyActorTargets {
+  'targets' : Array<ProxyActorItem>,
+  'expiration' : [] | [bigint],
 }
 export type Result = { 'Ok' : bigint } |
   { 'Err' : string };
@@ -22,7 +31,8 @@ export type Result_2 = { 'Ok' : Array<string> } |
 export type Result_3 = { 'Ok' : CallResult } |
   { 'Err' : string };
 export interface _SERVICE {
-  'add_expiry_user' : ActorMethod<[Principal, [] | [bigint]], ExpiryUser>,
+  'add_expiry_user' : ActorMethod<[Principal, ProxyActorTargets], ExpiryUser>,
+  'add_proxy_black_list' : ActorMethod<[Principal], string>,
   'balance_get' : ActorMethod<[], Result>,
   'ego_canister_add' : ActorMethod<[string, Principal], Result_1>,
   'ego_controller_add' : ActorMethod<[Principal], Result_1>,
@@ -36,6 +46,8 @@ export interface _SERVICE {
   'ego_user_add' : ActorMethod<[Principal], Result_1>,
   'ego_user_remove' : ActorMethod<[Principal], Result_1>,
   'ego_user_set' : ActorMethod<[Array<Principal>], Result_1>,
+  'is_proxy_black_list' : ActorMethod<[Principal], boolean>,
   'proxy_call' : ActorMethod<[CallCanisterArgs], Result_3>,
+  'remove_proxy_black_list' : ActorMethod<[Principal], [] | [string]>,
   'set_expiry_period' : ActorMethod<[bigint], undefined>,
 }

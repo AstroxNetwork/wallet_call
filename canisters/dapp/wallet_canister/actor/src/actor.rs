@@ -1,14 +1,12 @@
-use candid::{candid_method, };
+use candid::candid_method;
 
+use ego_macros::{inject_app_info, inject_ego_api, inject_ego_data};
 use ic_cdk_macros::*;
-use ego_macros::{ inject_ego_api,inject_app_info,inject_ego_data};
 use std::cell::RefCell;
 
+use wallet_canister_mod::types::{CallCanisterArgs, CallResult, ExpiryUser, ProxyActorTargets};
 
-use wallet_canister_mod::types::{CallCanisterArgs, CallResult,  ExpiryUser};
-
-
-use ic_cdk::{trap};
+use ic_cdk::trap;
 use wallet_canister_mod::service::WalletService;
 
 inject_ego_api!();
@@ -35,6 +33,29 @@ pub fn owner_or_valid_user_guard() -> Result<(), String> {
     }
 }
 
+pub fn targets_guard(canister: &Principal) -> Result<(), String> {
+    let caller = caller();
+    match WalletService::is_proxy_black_list(canister) {
+        true => trap(&format!(
+            "Canister {} is in proxy black list",
+            canister.clone()
+        )),
+        false => {
+            if !is_owner(caller) {
+                match WalletService::is_valid_canister(&caller.clone(), canister) {
+                    true => Ok(()),
+                    false => trap(&format!(
+                        "Canister {} is not in authorized targets",
+                        canister.clone()
+                    )),
+                }
+            } else {
+                Ok(())
+            }
+        }
+    }
+}
+
 #[init]
 #[candid_method(init)]
 pub fn init() {
@@ -47,13 +68,16 @@ pub fn init() {
 #[update(name = "proxy_call", guard = "owner_or_valid_user_guard")]
 #[candid_method(update, rename = "proxy_call")]
 async fn proxy_call(args: CallCanisterArgs<u128>) -> Result<CallResult, String> {
-    wallet_canister_mod::wallet_call(args).await
+    match targets_guard(&args.canister) {
+        Ok(_) => wallet_canister_mod::wallet_call(args.clone()).await,
+        Err(r) => trap(&r),
+    }
 }
 
 #[update(name = "add_expiry_user", guard = "owner_guard")]
 #[candid_method(update, rename = "add_expiry_user")]
-async fn add_expiry_user(user: Principal, period: Option<u64>, ) -> ExpiryUser {
-    WalletService::add_expiry_user(user, period)
+async fn add_expiry_user(user: Principal, targets: ProxyActorTargets) -> ExpiryUser {
+    WalletService::add_expiry_user(user, targets)
 }
 
 #[update(name = "set_expiry_period", guard = "owner_guard")]
@@ -62,4 +86,20 @@ async fn set_expiry_period(secs: u64) {
     WalletService::set_expiry_period(secs)
 }
 
+#[update(name = "add_proxy_black_list", guard = "owner_guard")]
+#[candid_method(update, rename = "add_proxy_black_list")]
+async fn add_proxy_black_list(target: Principal) -> String {
+    WalletService::add_proxy_black_list(target)
+}
 
+#[update(name = "remove_proxy_black_list", guard = "owner_guard")]
+#[candid_method(update, rename = "remove_proxy_black_list")]
+async fn remove_proxy_black_list(target: Principal) -> Option<String> {
+    WalletService::remove_proxy_black_list(&target)
+}
+
+#[query(name = "is_proxy_black_list")]
+#[candid_method(query, rename = "is_proxy_black_list")]
+async fn is_proxy_black_list(target: Principal) -> bool {
+    WalletService::is_proxy_black_list(&target)
+}

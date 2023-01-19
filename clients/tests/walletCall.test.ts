@@ -8,7 +8,7 @@ import { getActor, identity, getCanisterId } from '@ego-js/utils';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { Principal } from '@dfinity/principal';
 import { ActorSubclass } from '@dfinity/agent/lib/cjs/actor';
-import { createProxyActor } from './proxyActor';
+import { buildProxyActorTargets, createProxyActor } from './proxyActor';
 
 describe('walletCall', () => {
   const walletCanisterId = getCanisterId('wallet_canister')!;
@@ -19,7 +19,12 @@ describe('walletCall', () => {
 
   test('just go', async () => {
     const _walletActor = await walletActor;
-    proxyActor = createProxyActor<targetService>(_walletActor, targetCanisterId!, targetIDL);
+    await _walletActor.remove_proxy_black_list(Principal.fromText(targetCanisterId));
+    const proxyActorItem = createProxyActor<targetService>(_walletActor, targetCanisterId!, targetIDL);
+
+    const targets = buildProxyActorTargets({ items: [proxyActorItem] });
+
+    proxyActor = proxyActorItem.actor;
 
     const result = await proxyActor.test_call({
       map: Array.from([
@@ -42,7 +47,8 @@ describe('walletCall', () => {
   test('just throw', async () => {
     const tempActor = getActor<walletService>(Ed25519KeyIdentity.generate(), walletIDL, walletCanisterId);
     const _walletActor = await tempActor;
-    proxyActor = createProxyActor<targetService>(_walletActor, targetCanisterId!, targetIDL);
+    const proxyActorItem = createProxyActor<targetService>(_walletActor, targetCanisterId!, targetIDL);
+    proxyActor = proxyActorItem.actor;
 
     try {
       await proxyActor.test_call({
@@ -64,7 +70,12 @@ describe('walletCall', () => {
     }
   });
   test('authoized call', async () => {
-    const addedResult = await (await walletActor).add_expiry_user(newTempId.getPrincipal(), []);
+    const tempActor = getActor<walletService>(newTempId, walletIDL, walletCanisterId);
+    const _walletActor = await tempActor;
+    const proxyActorItem = createProxyActor<targetService>(_walletActor, targetCanisterId!, targetIDL);
+    const targets = buildProxyActorTargets({ items: [proxyActorItem] });
+
+    const addedResult = await (await walletActor).add_expiry_user(newTempId.getPrincipal(), targets);
     console.log(`
     3. Adding authorized Id to wallet canister, with default expiration period
     with Result: \n
@@ -75,12 +86,10 @@ describe('walletCall', () => {
     \}
     `);
 
-    const tempActor = getActor<walletService>(newTempId, walletIDL, walletCanisterId);
-    const _walletActor = await tempActor;
-    proxyActor = createProxyActor<targetService>(_walletActor, targetCanisterId!, targetIDL);
+    proxyActor = proxyActorItem.actor;
 
     try {
-      let result = await proxyActor.test_call({
+      let result = await proxyActorItem.actor.test_call({
         map: Array.from([
           [0, true],
           [1, false],
@@ -97,6 +106,7 @@ describe('walletCall', () => {
       expect(result).toBeTruthy();
     } catch (error) {
       console.log('throw');
+      console.log(error);
       expect(error as Error).toBeTruthy();
     }
 
@@ -118,6 +128,7 @@ describe('walletCall', () => {
       expect(result).toBeTruthy();
     } catch (error) {
       console.log('throw');
+      console.log(error);
       expect(error as Error).toBeTruthy();
     }
   });

@@ -5,12 +5,28 @@ import { strategy } from '@dfinity/agent/lib/cjs/polling';
 import { Principal } from '@dfinity/principal';
 
 import { IDL } from '@dfinity/candid';
+
+export interface ActorItem<T> {
+  canister: string;
+  methods: string[];
+  actor: ActorSubclass<T>;
+}
+
+export interface Targets {
+  expiration: [] | [bigint];
+  targets: {
+    canister: Principal;
+    methods: string[];
+  }[];
+}
+
 const DEFAULT_ACTOR_CONFIG = {
   pollingStrategyFactory: strategy.defaultStrategy,
 };
 
-function _createProxyActor(wallet_call: ActorSubclass<walletService>, canister: string, idl: IDL.InterfaceFactory): ActorConstructor {
+function _createProxyActor(wallet_call: ActorSubclass<walletService>, canister: string, idl: IDL.InterfaceFactory): [ActorConstructor, string[]] {
   const service = idl({ IDL });
+  const methods = service._fields.map(f => f[0]);
 
   class ProxyActor extends Actor {
     [x: string]: ActorMethod;
@@ -30,17 +46,24 @@ function _createProxyActor(wallet_call: ActorSubclass<walletService>, canister: 
     }
   }
 
-  return ProxyActor;
+  return [ProxyActor, methods];
 }
 
 export function createProxyActor<T = Record<string, ActorMethod>>(
   wallet_call: ActorSubclass<walletService>,
   canister: string,
   interfaceFactory: IDL.InterfaceFactory,
-): ActorSubclass<T> {
-  return new (_createProxyActor(wallet_call, canister, interfaceFactory))({
+): ActorItem<T> {
+  const [proxyActor, methods] = _createProxyActor(wallet_call, canister, interfaceFactory);
+
+  const actor = new proxyActor({
     canisterId: canister,
   }) as unknown as ActorSubclass<T>;
+  return {
+    actor,
+    methods,
+    canister,
+  };
 }
 
 function decodeReturnValue(types: IDL.Type[], msg: ArrayBuffer) {
@@ -80,4 +103,16 @@ function _createActorMethod(wallet_call: ActorSubclass<walletService>, canister:
     (...args: unknown[]) =>
       caller(options, ...args);
   return handler as ActorMethod;
+}
+
+export function buildProxyActorTargets({ items, expiration }: { items: ActorItem<any>[]; expiration?: bigint }): Targets {
+  const targets: {
+    canister: Principal;
+    methods: string[];
+  }[] = items.map(e => ({ canister: Principal.fromText(e.canister), methods: e.methods }));
+
+  return {
+    expiration: expiration ? [expiration] : [],
+    targets,
+  };
 }

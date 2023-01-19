@@ -3,7 +3,7 @@ use ic_cdk::export::Principal;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Clone)]
 pub struct CallCanisterArgs<TCycles> {
     pub canister: Principal,
     pub method_name: String,
@@ -12,15 +12,28 @@ pub struct CallCanisterArgs<TCycles> {
     pub cycles: TCycles,
 }
 
+#[derive(CandidType, Serialize, Clone, Deserialize)]
+pub struct ProxyActorItem {
+    pub canister: Principal,
+    pub methods: Vec<String>,
+}
+
+#[derive(CandidType, Serialize, Clone, Deserialize)]
+pub struct ProxyActorTargets {
+    pub expiration: Option<u64>,
+    pub targets: Vec<ProxyActorItem>,
+}
+
 #[derive(CandidType, Deserialize)]
 pub struct CallResult {
     #[serde(with = "serde_bytes")]
     pub r#return: Vec<u8>,
 }
 
-#[derive(CandidType, Serialize, Clone, Deserialize, Copy)]
+#[derive(CandidType, Serialize, Clone, Deserialize)]
 pub struct ExpiryUser {
     pub user: Principal,
+    pub target_list: Vec<ProxyActorItem>,
     pub timestamp: u64,
     pub expiry_timestamp: u64,
 }
@@ -31,7 +44,8 @@ pub struct WalletStore {
     pub settings: Settings,
 }
 
-#[derive(CandidType, Serialize, Deserialize, Clone, Copy)]
+#[derive(CandidType, Serialize, Deserialize, Clone)]
 pub struct Settings {
     pub expiry_period: u64,
+    pub proxy_black_list: BTreeMap<Principal, String>,
 }

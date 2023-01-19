@@ -1,8 +1,17 @@
 export const idlFactory = ({ IDL }) => {
+  const ProxyActorItem = IDL.Record({
+    'methods' : IDL.Vec(IDL.Text),
+    'canister' : IDL.Principal,
+  });
+  const ProxyActorTargets = IDL.Record({
+    'targets' : IDL.Vec(ProxyActorItem),
+    'expiration' : IDL.Opt(IDL.Nat64),
+  });
   const ExpiryUser = IDL.Record({
     'user' : IDL.Principal,
     'expiry_timestamp' : IDL.Nat64,
     'timestamp' : IDL.Nat64,
+    'target_list' : IDL.Vec(ProxyActorItem),
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : IDL.Text });
   const Result_1 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : IDL.Text });
@@ -17,10 +26,11 @@ export const idlFactory = ({ IDL }) => {
   const Result_3 = IDL.Variant({ 'Ok' : CallResult, 'Err' : IDL.Text });
   return IDL.Service({
     'add_expiry_user' : IDL.Func(
-        [IDL.Principal, IDL.Opt(IDL.Nat64)],
+        [IDL.Principal, ProxyActorTargets],
         [ExpiryUser],
         [],
       ),
+    'add_proxy_black_list' : IDL.Func([IDL.Principal], [IDL.Text], []),
     'balance_get' : IDL.Func([], [Result], ['query']),
     'ego_canister_add' : IDL.Func([IDL.Text, IDL.Principal], [Result_1], []),
     'ego_controller_add' : IDL.Func([IDL.Principal], [Result_1], []),
@@ -34,7 +44,13 @@ export const idlFactory = ({ IDL }) => {
     'ego_user_add' : IDL.Func([IDL.Principal], [Result_1], []),
     'ego_user_remove' : IDL.Func([IDL.Principal], [Result_1], []),
     'ego_user_set' : IDL.Func([IDL.Vec(IDL.Principal)], [Result_1], []),
+    'is_proxy_black_list' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'proxy_call' : IDL.Func([CallCanisterArgs], [Result_3], []),
+    'remove_proxy_black_list' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(IDL.Text)],
+        [],
+      ),
     'set_expiry_period' : IDL.Func([IDL.Nat64], [], []),
   });
 };
