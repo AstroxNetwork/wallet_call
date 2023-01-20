@@ -73,6 +73,10 @@ describe('walletCall', () => {
     const tempActor = getActor<walletService>(newTempId, walletIDL, walletCanisterId);
     const _walletActor = await tempActor;
     const proxyActorItem = createProxyActor<targetService>(_walletActor, targetCanisterId!, targetIDL);
+
+    // const methods = proxyActorItem.methods.filter(d => d !== 'test_query');
+    // proxyActorItem['methods'] = methods;
+
     const targets = buildProxyActorTargets({ items: [proxyActorItem] });
 
     const addedResult = await (await walletActor).add_expiry_user(newTempId.getPrincipal(), targets);

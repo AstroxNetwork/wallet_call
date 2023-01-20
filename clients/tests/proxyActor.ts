@@ -16,7 +16,7 @@ export interface Targets {
   expiration: [] | [bigint];
   targets: {
     canister: Principal;
-    methods: string[];
+    methods: [] | string[];
   }[];
 }
 

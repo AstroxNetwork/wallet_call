@@ -33,26 +33,34 @@ pub fn owner_or_valid_user_guard() -> Result<(), String> {
     }
 }
 
-pub fn targets_guard(canister: &Principal) -> Result<(), String> {
+pub fn targets_guard(canister: &Principal, method: &String) -> Result<(), String> {
     let caller = caller();
-    match WalletService::is_proxy_black_list(canister) {
-        true => trap(&format!(
-            "Canister {} is in proxy black list",
-            canister.clone()
-        )),
-        false => {
-            if !is_owner(caller) {
-                match WalletService::is_valid_canister(&caller.clone(), canister) {
-                    true => Ok(()),
-                    false => trap(&format!(
-                        "Canister {} is not in authorized targets",
-                        canister.clone()
-                    )),
+
+    if !is_owner(caller) {
+        match WalletService::is_proxy_black_list(canister) {
+            true => trap(&format!(
+                "Canister {} is in proxy black list",
+                canister.clone()
+            )),
+            false => match WalletService::is_valid_canister(&caller.clone(), canister) {
+                true => {
+                    match WalletService::is_valid_canister_method(&caller.clone(), canister, method)
+                    {
+                        true => Ok(()),
+                        false => trap(&format!(
+                            "Method {} is not in authorized targets",
+                            method.clone()
+                        )),
+                    }
                 }
-            } else {
-                Ok(())
-            }
+                false => trap(&format!(
+                    "Canister {} is not in authorized targets",
+                    canister.clone()
+                )),
+            },
         }
+    } else {
+        Ok(())
     }
 }
 
@@ -68,7 +76,7 @@ pub fn init() {
 #[update(name = "proxy_call", guard = "owner_or_valid_user_guard")]
 #[candid_method(update, rename = "proxy_call")]
 async fn proxy_call(args: CallCanisterArgs<u128>) -> Result<CallResult, String> {
-    match targets_guard(&args.canister) {
+    match targets_guard(&args.canister, &args.method_name) {
         Ok(_) => wallet_canister_mod::wallet_call(args.clone()).await,
         Err(r) => trap(&r),
     }
