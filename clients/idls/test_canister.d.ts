@@ -9,5 +9,6 @@ export interface TestArgs {
 }
 export interface _SERVICE {
   'test_call' : ActorMethod<[TestArgs], [] | [string]>,
+  'test_call_key' : ActorMethod<[TestArgs], [] | [string]>,
   'test_query' : ActorMethod<[TestArgs], [] | [string]>,
 }

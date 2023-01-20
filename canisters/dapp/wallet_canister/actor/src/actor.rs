@@ -4,7 +4,9 @@ use ego_macros::{inject_app_info, inject_ego_api, inject_ego_data};
 use ic_cdk_macros::*;
 use std::cell::RefCell;
 
-use wallet_canister_mod::types::{CallCanisterArgs, CallResult, ExpiryUser, ProxyActorTargets};
+use wallet_canister_mod::types::{
+    CallCanisterArgs, CallResult, ExpiryUser, OwnerReply, ProxyActorTargets, QueueHash,
+};
 
 use ic_cdk::trap;
 use wallet_canister_mod::service::WalletService;
@@ -33,34 +35,50 @@ pub fn owner_or_valid_user_guard() -> Result<(), String> {
     }
 }
 
-pub fn targets_guard(canister: &Principal, method: &String) -> Result<(), String> {
+pub fn targets_guard(args: CallCanisterArgs<u128>) -> Result<Option<String>, String> {
     let caller = caller();
 
     if !is_owner(caller) {
-        match WalletService::is_proxy_black_list(canister) {
+        match WalletService::is_proxy_black_list(&args.canister) {
             true => trap(&format!(
                 "Canister {} is in proxy black list",
-                canister.clone()
+                args.canister.clone()
             )),
-            false => match WalletService::is_valid_canister(&caller.clone(), canister) {
+            false => match WalletService::is_valid_canister(&caller.clone(), &args.canister) {
                 true => {
-                    match WalletService::is_valid_canister_method(&caller.clone(), canister, method)
-                    {
-                        true => Ok(()),
+                    match WalletService::is_valid_canister_method(
+                        &caller.clone(),
+                        &args.canister,
+                        &args.method_name,
+                    ) {
+                        true => {
+                            match WalletService::is_method_key_oper(
+                                &caller.clone(),
+                                &args.canister,
+                                &args.method_name,
+                            ) {
+                                true => {
+                                    let obj = WalletService::hash_method(&caller.clone(), args);
+                                    let hash = WalletService::add_method_queue(obj);
+                                    Ok(Some(hash))
+                                }
+                                false => Ok(None),
+                            }
+                        }
                         false => trap(&format!(
                             "Method {} is not in authorized targets",
-                            method.clone()
+                            args.method_name.clone()
                         )),
                     }
                 }
                 false => trap(&format!(
                     "Canister {} is not in authorized targets",
-                    canister.clone()
+                    args.canister.clone()
                 )),
             },
         }
     } else {
-        Ok(())
+        Ok(None)
     }
 }
 
@@ -76,9 +94,69 @@ pub fn init() {
 #[update(name = "proxy_call", guard = "owner_or_valid_user_guard")]
 #[candid_method(update, rename = "proxy_call")]
 async fn proxy_call(args: CallCanisterArgs<u128>) -> Result<CallResult, String> {
-    match targets_guard(&args.canister, &args.method_name) {
-        Ok(_) => wallet_canister_mod::wallet_call(args.clone()).await,
+    match targets_guard(args.clone()) {
+        Ok(hash) => {
+            if hash.is_none() {
+                wallet_canister_mod::wallet_call(args.clone()).await
+            } else {
+                Err(hash.unwrap())
+            }
+        }
         Err(r) => trap(&r),
+    }
+}
+
+#[update(name = "owner_confirm", guard = "owner_guard")]
+#[candid_method(update, rename = "owner_confirm")]
+async fn owner_confirm(hash: String, approve: bool) -> OwnerReply {
+    match WalletService::get_queue_method(hash.clone()) {
+        None => OwnerReply::NotFound,
+        Some(r) => {
+            if approve {
+                let call_result = wallet_canister_mod::wallet_call(r.payload.clone()).await;
+                let reply = OwnerReply::Approved(call_result);
+                WalletService::update_queue_reply(hash.clone(), reply.clone());
+                reply.clone()
+            } else {
+                let reply = OwnerReply::Rejected(hash.clone());
+                WalletService::update_queue_reply(hash.clone(), reply.clone());
+                reply.clone()
+            }
+        }
+    }
+}
+
+#[query(name = "has_queue_method", guard = "owner_or_valid_user_guard")]
+#[candid_method(query, rename = "has_queue_method")]
+fn has_queue_method(hash: String) -> bool {
+    WalletService::get_queue_method(hash).is_some()
+}
+
+#[query(name = "get_queue_reply", guard = "owner_or_valid_user_guard")]
+#[candid_method(query, rename = "get_queue_reply")]
+fn get_queue_reply(hash: String) -> Option<OwnerReply> {
+    WalletService::get_queue_reply(hash)
+}
+
+#[query(name = "get_queue_unconfirmed", guard = "owner_guard")]
+#[candid_method(query, rename = "get_queue_unconfirmed")]
+fn get_queue_unconfirmed(user: Principal) -> Vec<QueueHash> {
+    WalletService::get_queue_unconfirmed(&user)
+}
+
+#[update(name = "remove_queue_method", guard = "owner_or_valid_user_guard")]
+#[candid_method(update, rename = "remove_queue_method")]
+fn remove_queue_method(hash: String) -> Result<bool, String> {
+    let caller = caller();
+    match WalletService::get_queue_method(hash.clone()) {
+        None => Ok(false),
+        Some(r) => {
+            if is_owner(caller) || r.user.eq(&caller) {
+                Ok(WalletService::remove_queue_method(hash.clone()).is_some())
+            } else {
+                Err("Not Authorized Execution".to_string())
+            }
+        }
     }
 }
 

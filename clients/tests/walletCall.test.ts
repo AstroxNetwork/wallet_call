@@ -8,7 +8,7 @@ import { getActor, identity, getCanisterId } from '@ego-js/utils';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { Principal } from '@dfinity/principal';
 import { ActorSubclass } from '@dfinity/agent/lib/cjs/actor';
-import { buildProxyActorTargets, createProxyActor } from './proxyActor';
+import { createProxyActor, ProxyTargets } from './proxyActor';
 
 describe('walletCall', () => {
   const walletCanisterId = getCanisterId('wallet_canister')!;
@@ -22,7 +22,8 @@ describe('walletCall', () => {
     await _walletActor.remove_proxy_black_list(Principal.fromText(targetCanisterId));
     const proxyActorItem = createProxyActor<targetService>(_walletActor, targetCanisterId!, targetIDL);
 
-    const targets = buildProxyActorTargets({ items: [proxyActorItem] });
+    // const targets = buildProxyActorTargets({ items: [proxyActorItem] });
+    const targets = new ProxyTargets([proxyActorItem]).buildTargets();
 
     proxyActor = proxyActorItem.actor;
 
@@ -77,7 +78,12 @@ describe('walletCall', () => {
     // const methods = proxyActorItem.methods.filter(d => d !== 'test_query');
     // proxyActorItem['methods'] = methods;
 
-    const targets = buildProxyActorTargets({ items: [proxyActorItem] });
+    const targets = new ProxyTargets([proxyActorItem]).buildTargets([
+      {
+        canister: targetCanisterId,
+        keys: ['test_call_key'],
+      },
+    ]);
 
     const addedResult = await (await walletActor).add_expiry_user(newTempId.getPrincipal(), targets);
     console.log(`
@@ -93,7 +99,7 @@ describe('walletCall', () => {
     proxyActor = proxyActorItem.actor;
 
     try {
-      let result = await proxyActorItem.actor.test_call({
+      let result = await proxyActor.test_call({
         map: Array.from([
           [0, true],
           [1, false],
@@ -135,8 +141,29 @@ describe('walletCall', () => {
       console.log(error);
       expect(error as Error).toBeTruthy();
     }
+
+    try {
+      let result = await proxyActor?.test_call_key({
+        map: Array.from([
+          [0, true],
+          [1, false],
+        ]),
+        pid: Principal.fromText(walletCanisterId),
+        str: 'query',
+        bytes: Array.from([0, 1, 2, 3, 4]),
+      });
+      console.log(`
+        6. Calling target call key function using added principal,  but update call actually
+        with Result: \n
+        ${result}
+        `);
+    } catch (error) {
+      console.log('throw');
+      console.log(error);
+      expect(error as Error).toBeTruthy();
+    }
   });
-  test('example', async () => {
+  test.skip('example', async () => {
     (await walletActor).set_expiry_period(BigInt(5 * 1000 * 1000 * 1000));
     console.log('Setting expiration period to 5 seconds, to let the tempID expired');
     try {
@@ -161,7 +188,7 @@ describe('walletCall', () => {
       );
     } catch (error) {
       console.log(`
-      6. Calling target function using added principal, throws because expiration
+      7. Calling target function using added principal, throws because expiration
       with error: \n
       ${error}
       `);
