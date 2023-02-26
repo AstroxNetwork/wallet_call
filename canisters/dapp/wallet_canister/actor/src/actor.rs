@@ -5,7 +5,8 @@ use ic_cdk_macros::*;
 use std::cell::RefCell;
 
 use wallet_canister_mod::types::{
-    CallCanisterArgs, CallResult, ExpiryUser, OwnerReply, ProxyActorTargets, QueueHash,
+    CallCanisterArgs, CallResult, ExpiryUser, MethodType, MethodValidationType, OwnerReply,
+    ProxyActorTargets, QueueHash,
 };
 
 use ic_cdk::trap;
@@ -51,20 +52,49 @@ pub fn targets_guard(args: CallCanisterArgs<u128>) -> Result<Option<String>, Str
                         &args.canister,
                         &args.method_name,
                     ) {
-                        true => {
-                            match WalletService::is_method_key_oper(
-                                &caller.clone(),
-                                &args.canister,
-                                &args.method_name,
-                            ) {
-                                true => {
-                                    let obj = WalletService::hash_method(&caller.clone(), args);
-                                    let hash = WalletService::add_method_queue(obj);
-                                    Ok(Some(hash))
-                                }
-                                false => Ok(None),
+                        true => match WalletService::get_method_validate_type() {
+                            MethodValidationType::ALL => {
+                                let obj = WalletService::hash_method(&caller.clone(), args);
+                                let hash = WalletService::add_method_queue(obj);
+                                Ok(Some(hash))
                             }
-                        }
+                            MethodValidationType::UPDATE => {
+                                match WalletService::get_method_type(
+                                    &caller.clone(),
+                                    &args.canister,
+                                    &args.method_name,
+                                ) {
+                                    None => trap(&format!(
+                                        "Method {} is not in authorized targets",
+                                        args.method_name.clone()
+                                    )),
+                                    Some(r) => {
+                                        if r == MethodType::CALL {
+                                            let obj =
+                                                WalletService::hash_method(&caller.clone(), args);
+                                            let hash = WalletService::add_method_queue(obj);
+                                            Ok(Some(hash))
+                                        } else {
+                                            Ok(None)
+                                        }
+                                    }
+                                }
+                            }
+                            MethodValidationType::KEY => {
+                                match WalletService::is_method_key_oper(
+                                    &caller.clone(),
+                                    &args.canister,
+                                    &args.method_name,
+                                ) {
+                                    true => {
+                                        let obj = WalletService::hash_method(&caller.clone(), args);
+                                        let hash = WalletService::add_method_queue(obj);
+                                        Ok(Some(hash))
+                                    }
+                                    false => Ok(None),
+                                }
+                            }
+                        },
                         false => trap(&format!(
                             "Method {} is not in authorized targets",
                             args.method_name.clone()
@@ -158,6 +188,12 @@ fn remove_queue_method(hash: String) -> Result<bool, String> {
             }
         }
     }
+}
+
+#[update(name = "set_method_validate_type", guard = "owner_guard")]
+#[candid_method(update, rename = "set_method_validate_type")]
+async fn set_method_validate_type(validate_type: MethodValidationType) {
+    WalletService::set_method_validate_type(validate_type)
 }
 
 #[update(name = "add_expiry_user", guard = "owner_guard")]

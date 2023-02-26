@@ -1,0 +1,1 @@
+{"canisters":{"wallet_canister":{"type":"custom","candid":"wallet_canister.did","wasm":"wallet_canister_opt.wasm.gz","build":[]}},"defaults":{"build":{"packtool":""}},"version":1}

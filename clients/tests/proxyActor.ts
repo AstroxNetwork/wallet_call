@@ -34,7 +34,7 @@ function _createProxyActor(wallet_call: ActorSubclass<walletService>, canister: 
   const methods = service._fields.map(f => {
     let method_type: MethodType;
     switch (f[1].annotations[0]) {
-      case '':
+      case '' || 'update':
         method_type = { CALL: null };
         break;
       case 'query':
@@ -42,6 +42,9 @@ function _createProxyActor(wallet_call: ActorSubclass<walletService>, canister: 
         break;
       case 'composite':
         method_type = { CompositeQuery: null };
+        break;
+      case 'oneway':
+        method_type = { OneWay: null };
         break;
       default: {
         method_type = { CALL: null };
@@ -210,10 +213,12 @@ async function pollQueueMethod(wallet_call: ActorSubclass<walletService>, hash: 
 
   for (let i = 0; i < totalRetries; i += 1) {
     let out = false;
-    // if (i === 2) {
-    //   const walletActor = await getActor<walletService>(identity(), walletIDL, getCanisterId('wallet_canister')!);
-    //   await walletActor.owner_confirm(hash, false);
-    // }
+
+    // test only, jest only runs in one single thread.
+    if (i === 2) {
+      const walletActor = await getActor<walletService>(identity(), walletIDL, getCanisterId('wallet_canister')!);
+      await walletActor.owner_confirm(hash, true);
+    }
     const rp = await wallet_call.get_queue_reply(hash);
     // { 'Approved' : Result_3 } |
     // { 'NotFound' : null } |

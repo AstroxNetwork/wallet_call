@@ -65,7 +65,7 @@ canisters/.pnpm-debug.log
 
 
 # artifacts
-artifacts/**/
+# artifacts/**/
 
 # lock files
 **/yarn.lock

@@ -71,6 +71,8 @@ describe('walletCall', () => {
     }
   });
   test('authoized call', async () => {
+    await (await walletActor).set_method_validate_type({ ALL: null });
+
     const tempActor = getActor<walletService>(newTempId, walletIDL, walletCanisterId);
     const _walletActor = await tempActor;
     const proxyActorItem = createProxyActor<targetService>(_walletActor, targetCanisterId!, targetIDL);

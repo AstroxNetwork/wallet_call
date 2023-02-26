@@ -1,5 +1,6 @@
 use crate::types::{
-    ExpiryUser, MethodQueueItem, OwnerReply, ProxyActorTargets, QueueHash, Settings, WalletStore,
+    ExpiryUser, MethodQueueItem, MethodType, MethodValidationType, OwnerReply, ProxyActorTargets,
+    QueueHash, Settings, WalletStore,
 };
 use crate::CallCanisterArgs;
 use ic_cdk::api;
@@ -27,6 +28,7 @@ impl Default for WalletStore<u128> {
             settings: Settings {
                 expiry_period: 7 * 24 * 60 * 60 * 1000 * 1000 * 1000,
                 proxy_black_list: Default::default(),
+                method_valid_type: MethodValidationType::KEY,
             },
             call_queue: Default::default(),
         }
@@ -74,6 +76,28 @@ impl WalletService {
                 .target_list
                 .iter()
                 .any(|d| d.canister.eq(canister) && d.methods.contains_key(method_name)),
+        }
+    }
+
+    pub fn get_method_type(
+        user: &Principal,
+        canister: &Principal,
+        method_name: &String,
+    ) -> Option<MethodType> {
+        match WalletService::get_expiry_user(user) {
+            None => None,
+            Some(r) => r
+                .target_list
+                .iter()
+                .find(|d| d.canister.eq(canister) && d.methods.get(method_name.as_str()).is_some())
+                .map_or_else(
+                    || None,
+                    |e| {
+                        e.methods
+                            .get(method_name.as_str())
+                            .map_or_else(|| None, |re| Some(re.method_type.clone()))
+                    },
+                ),
         }
     }
 
@@ -233,6 +257,20 @@ impl WalletService {
         WALLET_STORE.with(|s| {
             let mut store = s.borrow_mut();
             store.settings.expiry_period = secs;
+        })
+    }
+
+    pub fn set_method_validate_type(v_type: MethodValidationType) {
+        WALLET_STORE.with(|s| {
+            let mut store = s.borrow_mut();
+            store.settings.method_valid_type = v_type;
+        })
+    }
+
+    pub fn get_method_validate_type() -> MethodValidationType {
+        WALLET_STORE.with(|s| {
+            let store = s.borrow();
+            store.settings.method_valid_type.clone()
         })
     }
 

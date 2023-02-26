@@ -12,11 +12,18 @@ pub struct CallCanisterArgs<TCycles> {
     pub cycles: TCycles,
 }
 
-#[derive(CandidType, Serialize, Deserialize, Clone)]
+#[derive(CandidType, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub enum MethodType {
     QUERY,
     CALL,
+    OneWay,
     CompositeQuery,
+}
+#[derive(CandidType, Serialize, Deserialize, Clone)]
+pub enum MethodValidationType {
+    ALL,
+    UPDATE,
+    KEY,
 }
 
 #[derive(CandidType, Serialize, Clone, Deserialize)]
@@ -79,6 +86,7 @@ pub struct QueueHash {
 pub struct Settings {
     pub expiry_period: u64,
     pub proxy_black_list: BTreeMap<Principal, String>,
+    pub method_valid_type: MethodValidationType,
 }
 
 #[derive(CandidType, Deserialize, Clone, PartialEq)]
