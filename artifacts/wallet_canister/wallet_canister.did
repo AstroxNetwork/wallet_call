@@ -29,34 +29,20 @@ type ProxyActorTargets = record {
 };
 type QueueHash = record { hash : text; user : principal; time_stamp : nat64 };
 type Result = variant { Ok : nat; Err : text };
-type Result_1 = variant { Ok; Err : text };
-type Result_2 = variant { Ok : vec text; Err : text };
-type Result_3 = variant { Ok : CallResult; Err : text };
-type Result_4 = variant { Ok : bool; Err : text };
+type ProxyCallResult = variant { Ok : CallResult; Err : text };
+type RemoveQueueResult = variant { Ok : bool; Err : text };
 service : () -> {
   add_expiry_user : (principal, ProxyActorTargets) -> (ExpiryUser);
   add_proxy_black_list : (principal) -> (text);
   balance_get : () -> (Result) query;
-  ego_canister_add : (text, principal) -> (Result_1);
-  ego_controller_add : (principal) -> (Result_1);
-  ego_controller_remove : (principal) -> (Result_1);
-  ego_controller_set : (vec principal) -> (Result_1);
-  ego_log_list : (nat64) -> (Result_2) query;
-  ego_op_add : (principal) -> (Result_1);
-  ego_owner_add : (principal) -> (Result_1);
-  ego_owner_remove : (principal) -> (Result_1);
-  ego_owner_set : (vec principal) -> (Result_1);
-  ego_user_add : (principal) -> (Result_1);
-  ego_user_remove : (principal) -> (Result_1);
-  ego_user_set : (vec principal) -> (Result_1);
   get_queue_reply : (text) -> (opt OwnerReply) query;
   get_queue_unconfirmed : (principal) -> (vec QueueHash) query;
   has_queue_method : (text) -> (bool) query;
   is_proxy_black_list : (principal) -> (bool) query;
   owner_confirm : (text, bool) -> (OwnerReply);
-  proxy_call : (CallCanisterArgs) -> (Result_3);
+  proxy_call : (CallCanisterArgs) -> (ProxyCallResult);
   remove_proxy_black_list : (principal) -> (opt text);
-  remove_queue_method : (text) -> (Result_4);
+  remove_queue_method : (text) -> (RemoveQueueResult);
   set_expiry_period : (nat64) -> ();
   set_method_validate_type : (MethodValidationType) -> ();
 }
